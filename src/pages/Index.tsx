@@ -1,6 +1,6 @@
 
-import React, { useEffect, useState } from 'react';
-import { fetchMatchData } from '../services/api';
+import React, { useEffect, useState, useCallback } from 'react';
+import { fetchMatchData, startLiveUpdates, stopLiveUpdates } from '../services/api';
 import { MatchData } from '../types/match';
 import MatchHeader from '../components/MatchHeader';
 import TeamSection from '../components/TeamSection';
@@ -13,12 +13,23 @@ const Index = () => {
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isLiveMode, setIsLiveMode] = useState<boolean>(false);
   const [showJsonView, setShowJsonView] = useState<boolean>(false);
+  const [matchId, setMatchId] = useState<string>('2021-04-18-samsunspor-galatasaray');
 
+  // Callback function to update match data
+  const updateMatchData = useCallback((data: MatchData) => {
+    setMatchData(data);
+    toast({
+      title: "Match data updated",
+      description: `Latest score: ${data.score}`,
+    });
+  }, []);
+
+  // Load initial data
   useEffect(() => {
     const loadData = async () => {
       try {
         setIsLoading(true);
-        const data = await fetchMatchData();
+        const data = await fetchMatchData(matchId);
         setMatchData(data);
         toast({
           title: "Match data loaded",
@@ -37,7 +48,21 @@ const Index = () => {
     };
 
     loadData();
-  }, []);
+  }, [matchId]);
+
+  // Handle live updates
+  useEffect(() => {
+    if (isLiveMode && matchData) {
+      startLiveUpdates(matchId, updateMatchData);
+    } else {
+      stopLiveUpdates();
+    }
+
+    // Cleanup on component unmount
+    return () => {
+      stopLiveUpdates();
+    };
+  }, [isLiveMode, matchId, matchData, updateMatchData]);
 
   const toggleLiveMode = (value: boolean) => {
     setIsLiveMode(value);

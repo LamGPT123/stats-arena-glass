@@ -1,7 +1,120 @@
 
-import { MatchData } from '../types/match';
+import { MatchData, Player } from '../types/match';
 
-// Simulating API delay
+// Stats Perform API credentials
+const API_USERNAME = 'statsperformdocs';
+const API_PASSWORD = 'ti0ra#V8eg0AhSh';
+
+// Base URLs for different endpoints
+const BASE_URL = 'https://api.statsperform.com/v1';
+const MATCH_STATS_URL = `${BASE_URL}/soccer/match/statistics`;
+
+// Function to get auth token
+const getAuthToken = async (): Promise<string> => {
+  try {
+    const response = await fetch(`${BASE_URL}/oauth/token`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      body: new URLSearchParams({
+        grant_type: 'client_credentials',
+        client_id: API_USERNAME,
+        client_secret: API_PASSWORD,
+      }),
+    });
+
+    if (!response.ok) {
+      throw new Error(`Authentication failed: ${response.status}`);
+    }
+
+    const data = await response.json();
+    return data.access_token;
+  } catch (error) {
+    console.error('Error getting auth token:', error);
+    throw error;
+  }
+};
+
+// Helper to convert API player data to our app format
+const mapPlayerData = (apiPlayer: any, teamName: string): Player => {
+  return {
+    team: teamName,
+    name: apiPlayer.player.name || 'Unknown Player',
+    number: apiPlayer.jerseyNumber || 0,
+    position: apiPlayer.position || 'Unknown',
+    actions: {
+      passes: apiPlayer.stats?.passes?.total || 0,
+      shots: apiPlayer.stats?.shots?.total || 0,
+      tackles: apiPlayer.stats?.tackles?.total || 0,
+      assists: apiPlayer.stats?.assists || 0,
+      goals: apiPlayer.stats?.goals || 0,
+      yellow_cards: apiPlayer.stats?.cards?.yellow || 0,
+      red_cards: apiPlayer.stats?.cards?.red || 0
+    }
+  };
+};
+
+// Function to fetch match data
+export const fetchMatchData = async (matchId = '2021-04-18-samsunspor-galatasaray'): Promise<MatchData> => {
+  try {
+    // First get the auth token
+    const token = await getAuthToken();
+    
+    // Fetch match details
+    const response = await fetch(`${MATCH_STATS_URL}/${matchId}`, {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error(`Failed to fetch match data: ${response.status}`);
+    }
+
+    const matchData = await response.json();
+    
+    // Extract teams data
+    const homeTeam = matchData.teams.find((team: any) => team.side === 'home') || {};
+    const awayTeam = matchData.teams.find((team: any) => team.side === 'away') || {};
+    
+    // Extract player data
+    const homePlayers = (homeTeam.players || []).map((player: any) => 
+      mapPlayerData(player, homeTeam.name)
+    );
+    
+    const awayPlayers = (awayTeam.players || []).map((player: any) => 
+      mapPlayerData(player, awayTeam.name)
+    );
+
+    // Format the data for our app
+    const formattedData: MatchData = {
+      match_id: matchId,
+      teams: {
+        home: homeTeam.name || 'Home Team',
+        away: awayTeam.name || 'Away Team'
+      },
+      score: `${homeTeam.score || 0}-${awayTeam.score || 0}`,
+      players: [...homePlayers, ...awayPlayers]
+    };
+
+    return formattedData;
+  } catch (error) {
+    console.error('Error fetching match data:', error);
+    
+    // Fallback to mock data if API fails
+    console.warn('Falling back to mock data due to API error');
+    return fetchMockMatchData();
+  }
+};
+
+// Fallback mock data if API fails
+const fetchMockMatchData = (): Promise<MatchData> => {
+  return mockFetch(mockMatchData);
+};
+
+// Simulate API delay for mock data
 const mockFetch = <T>(data: T, delay = 1500): Promise<T> => {
   return new Promise((resolve) => {
     setTimeout(() => {
@@ -10,7 +123,7 @@ const mockFetch = <T>(data: T, delay = 1500): Promise<T> => {
   });
 };
 
-// Mock match data
+// Mock match data - used as fallback if API fails
 const mockMatchData: MatchData = {
   match_id: "SG-2024-01",
   teams: {
@@ -355,7 +468,31 @@ const mockMatchData: MatchData = {
   ]
 };
 
-// Mock API functions
-export const fetchMatchData = (): Promise<MatchData> => {
-  return mockFetch(mockMatchData);
+// Set up polling for live data updates
+let liveUpdateInterval: number | null = null;
+
+export const startLiveUpdates = (
+  matchId: string, 
+  callback: (data: MatchData) => void, 
+  interval = 30000
+): void => {
+  // Clear any existing interval
+  stopLiveUpdates();
+  
+  // Set new interval to fetch data
+  liveUpdateInterval = window.setInterval(async () => {
+    try {
+      const data = await fetchMatchData(matchId);
+      callback(data);
+    } catch (error) {
+      console.error('Error in live update:', error);
+    }
+  }, interval);
+};
+
+export const stopLiveUpdates = (): void => {
+  if (liveUpdateInterval !== null) {
+    clearInterval(liveUpdateInterval);
+    liveUpdateInterval = null;
+  }
 };

@@ -68,6 +68,11 @@ export default {
 				statGood: '#22c55e',
 				statNeutral: '#3b82f6',
 				statBad: '#ef4444',
+                githubBlue: '#1EAEDB',
+                githubBlueLight: '#33C3F0',
+                darkBg: '#1A1F2C',
+                darkCard: '#222222',
+                darkAccent: '#333333',
 			},
 			borderRadius: {
 				lg: 'var(--radius)',
@@ -102,7 +107,15 @@ export default {
 				'slide-in-left': {
 					'0%': { transform: 'translateX(-100%)' },
 					'100%': { transform: 'translateX(0)' }
-				}
+				},
+                'pulse-glow': {
+                    '0%, 100%': { 
+                        boxShadow: '0 0 5px rgba(30, 174, 219, 0.5)'
+                    },
+                    '50%': { 
+                        boxShadow: '0 0 20px rgba(30, 174, 219, 0.8)'
+                    }
+                }
 			},
 			animation: {
 				'accordion-down': 'accordion-down 0.2s ease-out',
@@ -111,7 +124,8 @@ export default {
 				'fade-in': 'fade-in 0.3s ease-out',
 				'fade-out': 'fade-out 0.3s ease-out',
 				'slide-in-right': 'slide-in-right 0.5s ease-out',
-				'slide-in-left': 'slide-in-left 0.5s ease-out'
+				'slide-in-left': 'slide-in-left 0.5s ease-out',
+                'pulse-glow': 'pulse-glow 2s infinite ease-in-out'
 			},
 			fontFamily: {
 				sans: ['Inter', 'sans-serif'],
@@ -120,9 +134,11 @@ export default {
 			},
 			boxShadow: {
 				'glass': '0 4px 30px rgba(0, 0, 0, 0.1)',
+                'betting': '0 4px 20px rgba(30, 174, 219, 0.15)',
 			},
 			backgroundImage: {
 				'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
+                'dark-gradient': 'linear-gradient(135deg, #1A1F2C 0%, #0F1319 100%)'
 			}
 		}
 	},

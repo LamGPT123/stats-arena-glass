@@ -58,8 +58,8 @@ const Index = () => {
   const awayTeamPlayers = matchData?.players.filter(player => player.team === matchData.teams.away) || [];
 
   return (
-    <div className="min-h-screen">
-      <div className="container mx-auto px-4 py-8">
+    <div className="min-h-screen text-white">
+      <div className="container mx-auto px-4 py-6">
         {/* Match Header */}
         <MatchHeader 
           teams={matchData?.teams || {home: "", away: ""}}
@@ -85,10 +85,10 @@ const Index = () => {
             
             {/* Separator */}
             <div className="hidden lg:block">
-              <Separator orientation="vertical" className="h-full" />
+              <Separator orientation="vertical" className="h-full bg-githubBlue/20" />
             </div>
             <div className="block lg:hidden">
-              <Separator orientation="horizontal" className="w-full" />
+              <Separator orientation="horizontal" className="w-full bg-githubBlue/20" />
             </div>
             
             {/* Away Team */}
@@ -101,9 +101,9 @@ const Index = () => {
         )}
 
         {/* Footer */}
-        <div className="mt-12 text-center text-sm text-gray-500">
+        <div className="mt-10 text-center text-sm text-gray-500">
           <p>Football Match Stats Viewer &copy; 2025</p>
-          <p className="mt-1">Opta API Integration Demo</p>
+          <p className="mt-1">Betting Odds & Match Analysis</p>
         </div>
       </div>
     </div>

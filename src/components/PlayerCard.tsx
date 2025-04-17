@@ -117,7 +117,7 @@ const PlayerCard: React.FC<PlayerCardProps> = ({ player }) => {
                     <div className="flex-1">
                       <Progress 
                         value={(action.value / action.maxValue) * 100} 
-                        className="h-1.5 bg-darkAccent"
+                        className="h-1.5"
                       />
                     </div>
                     <div className="text-xs font-medium w-5 text-right">{action.value}</div>

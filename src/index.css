@@ -57,7 +57,7 @@
 
 @layer components {
   .glass {
-    @apply backdrop-blur-md bg-darkCard/90 border border-white/5 shadow-betting;
+    @apply backdrop-blur-md bg-darkCard/90 border border-white/5;
   }
 
   .shimmer {
@@ -65,7 +65,7 @@
   }
   
   .vs-circle {
-    @apply relative flex items-center justify-center w-14 h-14 rounded-full bg-darkAccent text-githubBlue text-xl font-bold border border-githubBlue/30 shadow-betting z-10;
+    @apply relative flex items-center justify-center w-14 h-14 rounded-full bg-darkAccent text-githubBlue text-xl font-bold border border-githubBlue/30 z-10;
   }
   
   .stat-bar {
@@ -77,6 +77,6 @@
   }
   
   .betting-card {
-    @apply glass hover:shadow-betting transition-all duration-300 rounded-xl overflow-hidden transform hover:scale-[1.02] hover:border-githubBlue/30;
+    @apply glass hover:border-githubBlue/30 transition-all duration-300 rounded-xl overflow-hidden transform hover:scale-[1.02];
   }
 }
